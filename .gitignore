@@ -3,11 +3,9 @@
 *.log
 *~
 
-config.guess
+autom4te.cache
 config.status
-config.sub
 configure
-install-sh
 
 /libfetch/ftperr.h
 /libfetch/httperr.h

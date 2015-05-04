@@ -1,7 +1,9 @@
 BMAKE   := bmake
 INSTALL := install
 PREFIX  := /usr/local
-RM      := rm -f
+RM      := rm
+
+CLOBBERFILES = autom4te.cache config.h* config.log config.status configure Makefile
 
 
 all: source/fetch
@@ -17,9 +19,8 @@ distclean:
 	cd libnbcompat && $(BMAKE) distclean
 
 clobber: distclean
-	cd source && $(RM) config.* configure install-sh Makefile
-	cd libnbcompat && $(RM) nbcompat/config.h.in* config.* configure install-sh
-
+	cd source && $(RM) -rf $(CLOBBERFILES)
+	cd libnbcompat && $(RM) -rf nbcompat/config.h.in* $(CLOBBERFILES)
 
 source/fetch: libfetch/libfetch.a source/configure
 	cd source && ./configure
