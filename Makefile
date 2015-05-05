@@ -1,7 +1,7 @@
 BMAKE   := bmake
 INSTALL := install
-PREFIX  := /usr/local
 RM      := rm
+PREFIX  ?= /usr/local
 
 CLOBBERFILES = autom4te.cache config.h* config.log config.status configure Makefile
 
