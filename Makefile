@@ -1,43 +1,63 @@
-BMAKE   := bmake
+CC      := gcc
+AWK     := gawk
+AR      := ar
+RANLIB  := ranlib
 INSTALL := install
-RM      := rm
-PREFIX  ?= /usr/local
 
-CLOBBERFILES = autom4te.cache config.h* config.log config.status configure Makefile
+PREFIX ?= /usr/local
+
+libfetch_OBJS     = fetch.o common.o ftp.o http.o file.o
+libfetch_CPPFLAGS = -D_LARGEFILE_SOURCE -D_LARGE_FILES -D_FILE_OFFSET_BITS=64 -DINET6 -DWITH_SSL -DFTP_COMBINE_CWDS
 
 
-all: source/fetch
+
+all: fetch
 
 clean:
-	cd source && $(BMAKE) clean
-	cd libfetch && $(BMAKE) clean
-	cd libnbcompat && $(BMAKE) clean
+	rm -rf libnbcompat/autom4te.cache source/autom4te.cache
+	rm -f libnbcompat/nbcompat/nbconfig.h libfetch/ftperr.h libfetch/httperr.h
+	rm -f fetch *.o *.a
 
-distclean:
-	cd source && $(BMAKE) distclean
-	cd libfetch && $(BMAKE) distclean
-	cd libnbcompat && $(BMAKE) distclean
+distclean: clean
+	cd libnbcompat && rm -f nbcompat/config.h config.log config.status Makefile || true
+	cd source && rm -f config.h config.log config.status Makefile || true
 
 clobber: distclean
-	cd source && $(RM) -rf $(CLOBBERFILES)
-	cd libnbcompat && $(RM) -rf nbcompat/config.h.in* $(CLOBBERFILES)
+	rm -f libnbcompat/configure	libnbcompat/nbcompat/config.h.in source/config.h.in source/configure
 
-source/fetch: libfetch/libfetch.a source/configure
+
+fetch: main.o libfetch.a
+	$(CC) $(LDFLAGS) -o $@ $^ -lssl -lcrypto -lnsl
+
+main.o: source/config.h libnbcompat/nbcompat/nbconfig.h
+	cd source && $(CC) -c -Wall $(CFLAGS) $(CPPFLAGS) -DHAVE_CONFIG_H -I../libnbcompat -I../libfetch -o ../$@ fetch.c
+
+source/config.h: source/configure
 	cd source && ./configure
-	cd source && $(BMAKE)
 
 source/configure:
 	cd source && ./autogen.sh
 
 
-libfetch/libfetch.a: libnbcompat/nbcompat/nbconfig.h
-	cd libfetch && $(BMAKE) ftperr.h httperr.h
-	cd libfetch && $(BMAKE)
+libfetch.a: $(libfetch_OBJS)
+	$(AR) cru $@ $^
+	$(RANLIB) $@
+
+$(libfetch_OBJS): libnbcompat/nbcompat/nbconfig.h libfetch/ftperr.h libfetch/httperr.h
+	cd libfetch && $(CC) -c -Wall -O2 -I. -I../libnbcompat $(libfetch_CPPFLAGS) $(CFLAGS) $(CPPFLAGS) -o ../$@ `echo $@ | sed 's|\.o$$|.c|'`
+
+libfetch/ftperr.h:
+	cd libfetch && ./errlist.sh ftp_errlist FTP ftp.errors > ../$@
+
+libfetch/httperr.h:
+	cd libfetch && ./errlist.sh http_errlist HTTP http.errors > ../$@
 
 
-libnbcompat/nbcompat/nbconfig.h: libnbcompat/configure
+libnbcompat/nbcompat/nbconfig.h: libnbcompat/nbcompat/config.h
+	$(AWK) -f libnbcompat/nbcompat.awk $^ > $@
+
+libnbcompat/nbcompat/config.h: libnbcompat/configure
 	cd libnbcompat && ./configure
-	cd libnbcompat && $(BMAKE) nbcompat/nbconfig.h
 
 libnbcompat/configure:
 	cd libnbcompat && ./autogen.sh
