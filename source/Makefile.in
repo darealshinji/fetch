@@ -1,9 +1,0 @@
-# $FreeBSD$
-
-.include <bsd.own.mk>
-
-PROG=		fetch
-LDADD+=		-L../libfetch -lfetch @LIBS@
-CPPFLAGS+=	-DHAVE_CONFIG_H -I../libnbcompat -I../libfetch
-
-.include <bsd.prog.mk>

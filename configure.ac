@@ -3,9 +3,15 @@ dnl $NetBSD: configure.ac,v 1.5 2011/12/05 22:54:22 joerg Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.52)
 AC_INIT([fetch], [1.8], [joerg@NetBSD.org])
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER([source/config.h])
+AC_CONFIG_SRCDIR([source/fetch.c])
+AC_CONFIG_AUX_DIR([build-aux])
+
+AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-xz])
 
 AC_CANONICAL_HOST
+
+AC_PROG_RANLIB
 
 AC_CHECK_HEADERS([sys/param.h sys/ioctl.h sys/socket.h sys/stat.h sys/time.h])
 AC_CHECK_HEADERS([err.h stdint.h termios.h sysexists.h])
@@ -25,5 +31,8 @@ netbsd)
 	;;
 esac
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 source/Makefile
+                 source/libfetch/Makefile])
+AC_CONFIG_SUBDIRS([source/libnbcompat])
 AC_OUTPUT

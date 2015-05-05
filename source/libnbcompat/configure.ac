@@ -4,21 +4,27 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.52)
 AC_INIT([libnbcompat], [20120702], [joerg@NetBSD.org])
 AC_CONFIG_HEADER(nbcompat/config.h)
+AC_CONFIG_AUX_DIR([build-aux])
+
+m4_include([nbcompat.m4])
+
 AC_ARG_PROGRAM
+
+AM_INIT_AUTOMAKE([foreign])
 
 AC_CANONICAL_HOST
 CANONICAL_HOST=$host
 AC_SUBST(CANONICAL_HOST)
-AC_SUBST(INCLUDES)
+AC_SUBST(AM_CPPFLAGS)
 
 # Checks for programs.
-AC_PROG_MAKE_SET
-AC_PROG_CC
-AC_PROG_INSTALL
-AC_PROG_LN_S
-AC_PROG_RANLIB
+#AC_PROG_MAKE_SET
+#AC_PROG_CC
+#AC_PROG_INSTALL
+#AC_PROG_LN_S
+#AC_PROG_RANLIB
 AC_PROG_AWK
-AC_CHECK_PROG(AR, ar, ar)
+#AC_CHECK_PROG(AR, ar, ar)
 
 AUTOCONF=${AUTOCONF-"$srcdir/missing --run autoconf"}
 AC_SUBST(AUTOCONF)
