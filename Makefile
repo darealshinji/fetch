@@ -66,6 +66,6 @@ libnbcompat/configure:
 install:
 	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/man/man1
-	$(INSTALL) -D -m755 source/fetch $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -D -m755 fetch $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL) -D -m644 source/fetch.1 $(DESTDIR)$(PREFIX)/share/man/man1
 
