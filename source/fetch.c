@@ -73,6 +73,7 @@
 #endif
 
 #define MINBUFSIZE	4096
+#define TIMEOUT	120
 
 /* Option flags */
 int	 A_flag;	/*    -A: do not follow 302 redirects */
@@ -108,8 +109,8 @@ volatile int	 siginfo;	/* SIGINFO received */
 #endif
 volatile int	 sigint;	/* SIGINT received */
 
-long	 ftp_timeout;	/* default timeout for FTP transfers */
-long	 http_timeout;	/* default timeout for HTTP transfers */
+long	 ftp_timeout = TIMEOUT;		/* default timeout for FTP transfers */
+long	 http_timeout = TIMEOUT;	/* default timeout for HTTP transfers */
 char	*buf;		/* transfer buffer */
 
 
