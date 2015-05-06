@@ -13,8 +13,8 @@ AC_CANONICAL_HOST
 
 AC_PROG_RANLIB
 
-AC_CHECK_HEADERS([sys/param.h sys/ioctl.h sys/socket.h sys/stat.h sys/time.h])
-AC_CHECK_HEADERS([err.h stdint.h termios.h sysexists.h])
+AC_CHECK_HEADERS([sys/param.h sys/ioctl.h sys/socket.h sys/stat.h sys/time.h \
+                  err.h stdint.h termios.h])
 
 AC_TYPE_INTMAX_T
 

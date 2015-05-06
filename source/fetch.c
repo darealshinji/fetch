@@ -68,18 +68,6 @@
 
 #include <fetch.h>
 
-#if HAVE_SYSEXITS_H
-#include <sysexits.h>
-#endif
-
-#ifndef EX_USAGE
-#define	EX_USAGE	64
-#endif
-
-#ifndef EX_IOERR
-#define	EX_IOERR	74
-#endif
-
 #ifndef TCSASOFT
 #define TCSASOFT	0
 #endif
@@ -944,7 +932,7 @@ main(int argc, char *argv[])
 			break;
 		default:
 			usage();
-			exit(EX_USAGE);
+			exit(1);
 		}
 
 	argc -= optind;
@@ -952,7 +940,7 @@ main(int argc, char *argv[])
 
 	if (!argc) {
 		usage();
-		exit(EX_USAGE);
+		exit(1);
 	}
 
 	fetchConnectionCacheInit(10, 1);
@@ -998,10 +986,10 @@ main(int argc, char *argv[])
 		} else if (stat(o_filename, &sb) == -1) {
 			if (errno == ENOENT) {
 				if (argc > 1)
-					errx(EX_USAGE, "%s is not a directory",
+					errx(1, "%s is not a directory",
 					    o_filename);
 			} else {
-				err(EX_IOERR, "%s", o_filename);
+				err(1, "%s", o_filename);
 			}
 		} else {
 			if (sb.st_mode & S_IFDIR)
