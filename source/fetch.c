@@ -367,7 +367,7 @@ query_auth(struct url *URL)
 
 	fprintf(stderr, "Login: ");
 	if (fgets(URL->user, sizeof URL->user, stdin) == NULL)
-		return (-1);
+		return -1;
 	for (i = strlen(URL->user); i >= 0; --i)
 		if (URL->user[i] == '\r' || URL->user[i] == '\n')
 			URL->user[i] = '\0';
@@ -375,12 +375,12 @@ query_auth(struct url *URL)
 	nopwd = read_password("Password: ",  URL->pwd, sizeof(URL->pwd));
 
 	if (nopwd)
-		return (-1);
+		return -1;
 	for (i = strlen(URL->pwd); i >= 0; --i)
 		if (URL->pwd[i] == '\r' || URL->pwd[i] == '\n')
 			URL->pwd[i] = '\0';
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -827,7 +827,7 @@ fetch(char *URL, const char *path)
 		fetchFreeURL(url);
 	if (tmppath != NULL)
 		free(tmppath);
-	return (r);
+	return r;
 }
 
 static void
