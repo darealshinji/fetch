@@ -726,7 +726,6 @@ fetch(char *URL, const char *path)
 	sigalrm = sigint = 0;
 
 	/* suck in the data */
-	setvbuf(f, NULL, _IOFBF, B_size);
 #ifdef SIGINFO
 	siginfo = 0;
 	signal(SIGINFO, sig_handler);
