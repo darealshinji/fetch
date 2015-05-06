@@ -49,7 +49,6 @@
 #include <sys/time.h>
 #endif
 
-#include <ctype.h>
 #if HAVE_ERR_H
 #include <err.h>
 #endif
