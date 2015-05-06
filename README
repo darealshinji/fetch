@@ -1,4 +1,4 @@
-FreeBSD fetch, taken from NetBSD pkgsrc (http://ftp.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.gz)
+FreeBSD fetch, taken from NetBSD pkgsrc: http://ftp.netbsd.org/pub/pkgsrc/current/
 
 fetch is a command line for transferring files with URL syntax.
 Supported schemas are FTP, HTTP, HTTPS and FILE.  It includes Advanced
