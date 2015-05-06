@@ -1041,7 +1041,8 @@ main(int argc, char *argv[])
 	if (v_tty)
 		fetchAuthMethod = query_auth;
 	if (N_filename != NULL)
-		setenv("NETRC", N_filename, 1);
+		if (setenv("NETRC", N_filename, 1) == -1)
+			err(1, "setenv: cannot set NETRC=%s", N_filename);
 
 	while (argc) {
 		if ((p = strrchr(*argv, '/')) == NULL)
