@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2000-2004 Dag-Erling Coïdan Smørgrav
+ * Copyright (c) 2000-2004 Dag-Erling CoÃ¯dan SmÃ¸rgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -625,7 +625,7 @@ fetch(char *URL, const char *path)
 				goto failure;
 			}
 			if (nsb.st_dev != sb.st_dev ||
-			    nsb.st_ino != nsb.st_ino ||
+			    nsb.st_ino != sb.st_ino ||
 			    nsb.st_size != sb.st_size) {
 				warnx("%s: file has changed", URL);
 				fclose(of);
