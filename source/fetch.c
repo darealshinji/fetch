@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2000-2004 Dag-Erling Coïdan Smørgrav
+ * Copyright (c) 2000-2014 Dag-Erling Smørgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,8 +71,8 @@
 #define TCSASOFT	0
 #endif
 
-#define MINBUFSIZE	4096
-#define TIMEOUT	120
+#define MINBUFSIZE	16384
+#define TIMEOUT 	120
 
 /* Option flags */
 static int	 A_flag;	/*    -A: do not follow 302 redirects */
@@ -726,6 +726,7 @@ fetch(char *URL, const char *path)
 	sigalrm = sigint = 0;
 
 	/* suck in the data */
+	setvbuf(f, NULL, _IOFBF, B_size);
 #ifdef SIGINFO
 	siginfo = 0;
 	signal(SIGINFO, sig_handler);
