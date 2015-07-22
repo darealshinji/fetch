@@ -47,6 +47,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #if defined(HAVE_INTTYPES_H) || defined(NETBSD)
 #include <inttypes.h>
 #endif
@@ -227,10 +228,17 @@ conn_t *
 fetch_reopen(int sd)
 {
 	conn_t *conn;
+#if defined(SO_NOSIGPIPE)
+	int opt = 1;
+#endif
 
 	/* allocate and fill connection structure */
 	if ((conn = calloc(1, sizeof(*conn))) == NULL)
 		return (NULL);
+	fcntl(sd, F_SETFD, FD_CLOEXEC);
+#if defined(SOL_SOCKET) && defined(SO_NOSIGPIPE)
+	setsockopt(sd, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof opt);
+#endif
 	conn->ftp_home = NULL;
 	conn->cache_url = NULL;
 	conn->next_buf = NULL;
@@ -990,7 +998,7 @@ fetch_no_proxy_match(const char *host)
 				break;
 
 		d_len = q - p;
-		if (d_len > 0 && h_len > d_len &&
+		if (d_len > 0 && h_len >= d_len &&
 		    strncasecmp(host + h_len - d_len,
 			p, d_len) == 0) {
 			/* domain name matches */

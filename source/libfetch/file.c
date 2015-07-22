@@ -131,6 +131,8 @@ fetchXGetFile(struct url *u, struct url_stat *us, const char *flags)
 		close(fd);
 		free(cookie);
 	}
+
+	fcntl(fileno(f), F_SETFD, FD_CLOEXEC);
 	return f;
 }
 
@@ -183,6 +185,8 @@ fetchPutFile(struct url *u, const char *flags)
 		close(fd);
 		free(cookie);
 	}
+
+	fcntl(fileno(f), F_SETFD, FD_CLOEXEC);
 	return f;
 }
 

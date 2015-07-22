@@ -1,6 +1,6 @@
 /*	$NetBSD: http.c,v 1.37 2014/06/11 13:12:12 joerg Exp $	*/
 /*-
- * Copyright (c) 2000-2004 Dag-Erling Smørgrav
+ * Copyright (c) 2000-2013 Dag-Erling Smørgrav
  * Copyright (c) 2003 Thomas Klausner <wiz@NetBSD.org>
  * Copyright (c) 2008, 2009 Joerg Sonnenberger <joerg@NetBSD.org>
  * All rights reserved.
@@ -115,7 +115,7 @@
 #include "httperr.h"
 
 /* Maximum number of redirects to follow */
-#define MAX_REDIRECT 5
+#define MAX_REDIRECT 20
 
 /* Symbolic names for reply codes we care about */
 #define HTTP_OK			200
@@ -124,6 +124,7 @@
 #define HTTP_MOVED_TEMP		302
 #define HTTP_SEE_OTHER		303
 #define HTTP_NOT_MODIFIED	304
+#define HTTP_USE_PROXY		305
 #define HTTP_TEMP_REDIRECT	307
 #define HTTP_NEED_AUTH		401
 #define HTTP_NEED_PROXY_AUTH	407
@@ -133,6 +134,7 @@
 #define HTTP_REDIRECT(xyz) ((xyz) == HTTP_MOVED_PERM \
 			    || (xyz) == HTTP_MOVED_TEMP \
 			    || (xyz) == HTTP_TEMP_REDIRECT \
+				|| (xyz) == HTTP_USE_PROXY \
 			    || (xyz) == HTTP_SEE_OTHER)
 
 #define HTTP_ERROR(xyz) ((xyz) > 400 && (xyz) < 599)
@@ -499,7 +501,7 @@ http_match(const char *str, const char *hdr)
 static hdr_t
 http_next_header(conn_t *conn, const char **p)
 {
-	int i;
+	unsigned int i;
 
 	if (fetch_getln(conn) == -1)
 		return (hdr_syserror);
@@ -532,6 +534,12 @@ http_parse_mtime(const char *p, time_t *mtime)
 	strncpy(locale, setlocale(LC_TIME, NULL), sizeof(locale));
 	setlocale(LC_TIME, "C");
 	r = strptime(p, "%a, %d %b %Y %H:%M:%S GMT", &tm);
+	/*
+	 * Some proxies use UTC in response, but it should still be
+	 * parsed. RFC2616 states GMT and UTC are exactly equal for HTTP.
+	 */
+	if (r == NULL)
+		r = strptime(p, "%a, %d %b %Y %H:%M:%S UTC", &tm);
 	/* XXX should add support for date-2 and date-3 */
 	setlocale(LC_TIME, locale);
 	if (r == NULL)
@@ -901,7 +909,7 @@ http_request(struct url *URL, const char *op, struct url_stat *us,
 		if (verbose)
 			fetch_info("requesting %s://%s%s",
 			    url->scheme, host, url->doc);
-		if (purl) {
+		if (purl && strcasecmp(URL->scheme, SCHEME_HTTPS) != 0) {
 			http_cmd(conn, "%s %s://%s%s HTTP/1.1\r\n",
 			    op, url->scheme, host, url->doc);
 		} else {
@@ -939,6 +947,12 @@ http_request(struct url *URL, const char *op, struct url_stat *us,
 		}
 
 		/* other headers */
+		if ((p = getenv("HTTP_ACCEPT")) != NULL) {
+			if (*p != '\0')
+				http_cmd(conn, "Accept: %s", p);
+		} else {
+			http_cmd(conn, "Accept: */*");
+		}
 		if ((p = getenv("HTTP_REFERER")) != NULL && *p != '\0') {
 			if (strcasecmp(p, "auto") == 0)
 				http_cmd(conn, "Referer: %s://%s%s\r\n",
@@ -980,6 +994,7 @@ http_request(struct url *URL, const char *op, struct url_stat *us,
 		case HTTP_MOVED_PERM:
 		case HTTP_MOVED_TEMP:
 		case HTTP_SEE_OTHER:
+		case HTTP_USE_PROXY:
 			/*
 			 * Not so fine, but we still have to read the
 			 * headers to get the new location.
