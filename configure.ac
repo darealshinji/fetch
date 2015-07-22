@@ -15,6 +15,7 @@ AC_PROG_RANLIB
 
 AC_CHECK_HEADERS([sys/param.h sys/ioctl.h sys/socket.h sys/stat.h sys/time.h \
                   err.h stdint.h termios.h])
+AC_CHECK_HEADER([openssl/crypto.h], , [exit 1])
 
 AC_TYPE_INTMAX_T
 
@@ -22,7 +23,7 @@ AC_CHECK_FUNCS([getpass getpassphrase setproctitle])
 AC_CHECK_LIB(socket, socket)
 AC_CHECK_LIB(nsl, gethostbyname)
 AC_CHECK_LIB(crypto, X509_get_issuer_name)
-AC_CHECK_LIB(ssl, SSL_read)
+AC_CHECK_LIB(ssl, SSL_read, , [exit 1])
 #AC_CHECK_LIB(fetch, fetchGet)
 
 case "$host_os" in
